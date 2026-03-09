@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Feitebol</title>
+  <link href="jogo.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at center, #0c0, #030);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #f5f5f5;
+    }
+
+    .placar {
+      font-size: 26px;
+      margin: 20px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .arquibancada {
+      width: 120px;
+      height: 500px;
+      background: linear-gradient(to bottom, #ddd, #aaa);
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #666;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      position: relative;
+    }
+
+    .fileira {
+      display: flex;
+      gap: 5px;
+    }
+
+    .cadeira {
+      width: 18px;
+      height: 18px;
+      background: #ccc;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .torcedor {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: red;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+
+    canvas {
+      border: 5px solid #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 15px #000;
+    }
+
+    .player {
+      position: absolute;
+      width: 60px;
+      height: 120px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .ball-img {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: explode 1s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @keyframes explode {
+      to {
+        transform: translate(var(--x), var(--y));
+        opacity: 0;
+      }
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .overlay h1,
+    .overlay h2,
+    .overlay h4 {
+      margin: 10px 0;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(to right, #28a745, #218838);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0f0;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: linear-gradient(to right, #218838, #1e7e34);
+    }
+
+    #btnVoltar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #dc3545;
+      color: white;
+      cursor: pointer;
+      z-index: 150;
+      display: none;
+      box-shadow: 0 0 10px #f00;
+    }
+  </style>
+</head>
+
+<body>
+
+            <!-- Tela de Desenvolvedores -->
+    <div id="telaDesenvolvedores" class="overlay">
+        <h1 class="Jogo">Criadores</h1>
+        <h4>Eduardo RA: 22.125.090-5 Email: effruiz@hotmail.com</h4>
+        <h4>João RA: 22.125.037-6 Email: jp.maioranoo@gmail.com</h4>
+        <h4>Matheus RA: 22.125.040-0 Email: matheus.rib0809@gmail.com</h4>
+        <h4>Vinicius RA: 22.125.029-3 Email: vinicius020806@gmail.com</h4>
+        <h2>Nós 4 somos alunos do curso de ciencias da computação, do primeiro semestre, e fizemos este jogo para a conclusao do semestre</h2>
+        <button class="btn" onclick="mostrarMenu()">Continuar</button>
+    </div>
+
+    <div id="menu" class="overlay" style="display: none;">
+        <h1 style="margin-bottom: 10px;">Feitebol</h1>
+        <p style="max-width: 600px; font-size: 16px; margin-bottom: 20px;">
+            Bem-vindos ao futebol da fei<br><br>
+            <strong>Objetivo:</strong> Quem fizer 3 gols ganha!<br>
+            <strong>Controles do Jogador 1:</strong> W, A, S, D para mover e <strong>ESPAÇO</strong> para chutar <br>
+            <strong>Controles do Jogador 2:</strong> Setas direcionais para mover e <strong>ENTER</strong> para chutar
+        </p>
+        <button class="btn" onclick="iniciarJogo()">Começar Jogo</button>
+        <button class="btn" style="background: darkorange; margin-top: 10px;" onclick="mostrarDesenvolvedores()">Voltar
+            para Desenvolvedores</button>
+    </div>
+
+
+    <div class="placar" id="placar">Jogador(1) 0 x 0 Jogador(2)</div>
+    <button id="btnVoltar" onclick="voltarAoMenu()" style="
+        position: absolute; top: 10px; right: 10px;
+        padding: 10px 20px; font-size: 14px;
+        border: none; border-radius: 6px;
+        background: #f00; color: white;
+        cursor: pointer; z-index: 150; display: none;">Voltar ao Menu</button>
+
+        
+    <div class="container">
+        <div class="arquibancada" id="arquibancada-esquerda"></div>
+        <div style="position: relative;">
+            <!-- canvas -->
+            <canvas id="game" width="1200" height="600"></canvas>
+            <img id="player1Img" class="player" src="imagens/jogador1.png" style="display: none;">
+            <img id="player2Img" class="player" src="imagens/jogador2.png" style="display: none;">
+            <img id="ballImg" class="ball-img" src="imagens/bola.png" style="display: none;">
+        </div>
+        <div class="arquibancada" id="arquibancada-direita"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
+
+        const placarDiv = document.getElementById("placar");
+        let golsAzul = 0;
+        let golsVermelho = 0;
+            //inicializa objetos
+        const field = { width: canvas.width, height: canvas.height };
+        const goalSize = 150;
+        const ball = { x: 400, y: 200, radius: 15, dx: 0, dy: 0 };
+        const player1 = { x: 100, y: 200, width: 60, height: 120, dx: 0, dy: 0 };
+        const player2 = { x: 680, y: 200, width: 60, height: 120, dx: 0, dy: 0 };
+        //carrega os jogadores e a bola
+        const player1Img = document.getElementById("player1Img");
+        const player2Img = document.getElementById("player2Img");
+        const ballImg = document.getElementById("ballImg");
+        let animacaoId = null;
+
+
+        player1Img.style.display = "block";
+        player2Img.style.display = "block";
+        ballImg.style.display = "block";
+            //cria a arquibancada
+        function criarArquibancadas() {
+            const esquerda = document.getElementById("arquibancada-esquerda");
+            const direita = document.getElementById("arquibancada-direita");
+
+            const coresTorcedor = ['red', 'blue', 'yellow', 'green', 'orange', 'purple'];
+
+            for (let i = 0; i < 10; i++) { //executa o codigo 10 vezez
+                const fileiraEsq = document.createElement("div");//fileira do lado esquerdo
+                fileiraEsq.className = "fileira";//adiciona a classe fileira  a fileiraesq
+                const fileiraDir = fileiraEsq.cloneNode();
+
+                for (let j = 0; j < 3; j++) {
+                    const cadeiraEsq = document.createElement("div");
+                    cadeiraEsq.className = "cadeira";
+                    const torcedorEsq = document.createElement("div");
+                    torcedorEsq.className = "torcedor";
+                    torcedorEsq.style.backgroundColor = coresTorcedor[Math.floor(Math.random() * coresTorcedor.length)];
+                    cadeiraEsq.appendChild(torcedorEsq);
+                    fileiraEsq.appendChild(cadeiraEsq);
+
+                    const cadeiraDir = document.createElement("div");
+                    cadeiraDir.className = "cadeira";
+                    const torcedorDir = document.createElement("div");
+                    torcedorDir.className = "torcedor";
+                    torcedorDir.style.backgroundColor = coresTorcedor[Math.floor(Math.random() * coresTorcedor.length)];
+                    cadeiraDir.appendChild(torcedorDir);
+                    fileiraDir.appendChild(cadeiraDir);
+                }
+
+                esquerda.appendChild(fileiraEsq);
+                direita.appendChild(fileiraDir);
+            }
+        }
+            //desenha o campo
+        function drawField() {
+            ctx.fillStyle = "#080";
+            ctx.fillRect(0, 0, field.width, field.height);
+
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 4;
+
+
+            ctx.beginPath();
+            ctx.moveTo(field.width / 2, 0);
+            ctx.lineTo(field.width / 2, field.height);
+            ctx.stroke();
+
+            //gol
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, field.height / 2 - goalSize / 2, 10, goalSize);
+            ctx.fillRect(field.width - 10, field.height / 2 - goalSize / 2, 10, goalSize);
+
+
+            const centerX = field.width / 2;
+            const centerY = field.height / 2;
+            const radius = 70;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#fff";
+
+            const areaPequenaWidth = 60;
+            const areaPequenaHeight = 200;
+
+            const areaGrandeWidth = 180;
+            const areaGrandeHeight = 400;
+
+
+            ctx.strokeRect(0, field.height / 2 - areaGrandeHeight / 2, areaGrandeWidth, areaGrandeHeight);
+            ctx.strokeRect(0, field.height / 2 - areaPequenaHeight / 2, areaPequenaWidth, areaPequenaHeight);
+
+            ctx.strokeRect(field.width - areaGrandeWidth, field.height / 2 - areaGrandeHeight / 2, areaGrandeWidth, areaGrandeHeight);
+            ctx.strokeRect(field.width - areaPequenaWidth, field.height / 2 - areaPequenaHeight / 2, areaPequenaWidth, areaPequenaHeight);
+
+
+            ctx.fillStyle = "#fff";
+            const pontoPenaltiRaio = 5;
+
+            const penaltiXEsq = areaPequenaWidth + 40;
+            const penaltiY = field.height / 2;
+            ctx.beginPath();
+            ctx.arc(penaltiXEsq, penaltiY, pontoPenaltiRaio, 0, Math.PI * 2);
+            ctx.fill();
+
+
+            const penaltiXDir = field.width - areaPequenaWidth - 40;
+            ctx.beginPath();
+            ctx.arc(penaltiXDir, penaltiY, pontoPenaltiRaio, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+
+
+
+        function drawImages() {
+            player1Img.style.left = `${player1.x}px`;
+            player1Img.style.top = `${player1.y}px`;
+
+            player2Img.style.left = `${player2.x}px`;
+            player2Img.style.top = `${player2.y}px`;
+
+            ballImg.style.left = `${ball.x}px`;
+            ballImg.style.top = `${ball.y}px`;
+        }
+            //atualiza a posição dos jogadores
+        function movePlayers() {
+            [player1, player2].forEach(p => {
+                p.x += p.dx;
+                p.y += p.dy;
+                const halfWidth = p.width / 2;
+                if (p.x - halfWidth < 0) p.x = halfWidth;
+                if (p.x + halfWidth > field.width) p.x = field.width - halfWidth;
+                if (p.y - p.height / 2 < 0) p.y = p.height / 2;
+                if (p.y + p.height / 2 > field.height) p.y = field.height - p.height / 2;
+            });
+        }
+            //atualiza a bola
+        function moveBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            ball.dx *= 0.98;
+            ball.dy *= 0.98;
+
+            if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= field.height) {
+                ball.dy *= -1;
+            }
+
+            if (ball.x - ball.radius <= 0 && ball.y >= field.height / 2 - goalSize / 2 && ball.y <= field.height / 2 + goalSize / 2) {
+                golsVermelho++;
+                atualizarPlacar();
+                fogos("direita");
+                resetPositions();
+            } else if (ball.x + ball.radius >= field.width && ball.y >= field.height / 2 - goalSize / 2 && ball.y <= field.height / 2 + goalSize / 2) {
+                golsAzul++;
+                atualizarPlacar();
+                fogos("esquerda");
+                resetPositions();
+            }
+
+            if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= field.width) {
+                ball.dx *= -1;
+            }
+        }
+            //chuta a bola
+        function kickBall(player) {
+            const dx = ball.x - player.x;
+            const dy = ball.y - player.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = 50; 
+
+            if (dist < maxDist) {
+                const factor = 1 - (dist / maxDist); // mais perto => mais força
+                ball.dx = dx * 0.8 * factor;
+                ball.dy = dy * 0.8 * factor;
+            }
+        }
+            //funcao q atualiza o placar e quando da 3 gols encerra o jogo
+       function atualizarPlacar() {
+    placarDiv.textContent = `Jogador(1) ${golsAzul} x ${golsVermelho} Jogador(2)`;
+
+    if (golsAzul >= 3) {
+        encerrarJogo("Jogador 1");
+    } else if (golsVermelho >= 3) {
+        encerrarJogo("Jogador 2");
+    }
+}
+        //reseta posição quando faz gol
+        function resetPositions() {
+            player1.x = field.width * 0.25;
+            player1.y = field.height / 2;
+            player2.x = field.width * 0.75 - player2.width;
+            player2.y = field.height / 2;
+
+            ball.x = field.width / 2;
+            ball.y = field.height / 2;
+            ball.dx = 0;
+            ball.dy = 0;
+        }
+            //cria o efeito dos fogos
+        function fogos(lado) {
+            const container = document.getElementById(`arquibancada-${lado}`);
+            for (let i = 0; i < 30; i++) {
+                const f = document.createElement("div");
+                f.className = "firework";
+                f.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+
+                const x = Math.random() * container.clientWidth;
+                const y = Math.random() * container.clientHeight;
+                f.style.left = `${x}px`;
+                f.style.top = `${y}px`;
+
+                f.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                f.style.setProperty('--y', `${(Math.random() - 0.5) * 200}px`);
+
+                container.appendChild(f);
+                setTimeout(() => f.remove(), 1000);
+            }
+        }
+        //carrega tudo e inicia o jogo
+        function iniciarJogo() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("btnVoltar").style.display = "block";
+            criarArquibancadas();
+            resetPositions();
+            atualizarPlacar();
+            gameLoop();
+        }
+            //cancela a animacao e volta pro menu
+        function voltarAoMenu() {
+            cancelAnimationFrame(animacaoId);
+            document.getElementById("menu").style.display = "flex";
+            document.getElementById("btnVoltar").style.display = "none";
+        }
+
+            //loop principal, limpa o canvas,desenha o campo, move os jogadores e a bola,atualiza posições visuais 
+        function gameLoop() {
+            ctx.clearRect(0, 0, field.width, field.height);
+            drawField();
+            movePlayers();
+            moveBall();
+            drawImages();
+            animacaoId = requestAnimationFrame(gameLoop);
+        }
+
+
+            //teclas de funcionamento
+        document.addEventListener("keydown", e => {
+            switch (e.key) {
+                case "a": player1.dx = -3; break;
+                case "d": player1.dx = 3; break;
+                case "w": player1.dy = -3; break;
+                case "s": player1.dy = 3; break;
+                case " ": kickBall(player1); break;
+                case "ArrowLeft": player2.dx = -3; break;
+                case "ArrowRight": player2.dx = 3; break;
+                case "ArrowUp": player2.dy = -3; break;
+                case "ArrowDown": player2.dy = 3; break;
+                case "Enter": kickBall(player2); break;
+            }
+        });
+            //define onde chuta e anda
+        document.addEventListener("keyup", e => {
+            if (["a", "d"].includes(e.key)) player1.dx = 0;
+            if (["w", "s"].includes(e.key)) player1.dy = 0;
+            if (["ArrowLeft", "ArrowRight"].includes(e.key)) player2.dx = 0;
+            if (["ArrowUp", "ArrowDown"].includes(e.key)) player2.dy = 0;
+        });
+
+        function mostrarMenu() {
+            document.getElementById("telaDesenvolvedores").style.display = "none";
+            document.getElementById("menu").style.display = "flex";
+        }
+        function mostrarDesenvolvedores() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("telaDesenvolvedores").style.display = "flex";
+        }
+        //encerra o jogo
+        function encerrarJogo(vencedor) {
+    cancelAnimationFrame(animacaoId);
+    
+    const fimJogoDiv = document.createElement("div");
+    fimJogoDiv.className = "overlay";
+    fimJogoDiv.innerHTML = `
+        <h1>Fim de Jogo</h1>
+        <h2>${vencedor} venceu!</h2>
+        <button class="btn" onclick="location.reload()">Jogar Novamente</button>
+    `;
+    document.body.appendChild(fimJogoDiv);
+}
+function jogar() {
+    animacaoId = requestAnimationFrame(jogar);
+    
+}
+
+
+
+
+
+    </script>
+</body>
+
+</html>
